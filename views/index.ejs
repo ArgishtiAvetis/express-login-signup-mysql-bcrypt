@@ -1,0 +1,13 @@
+<% include partials/header.ejs %>
+
+<h1>Welcome!</h1>
+
+<ul>
+	<% for(var i = 0, len = users.length; i < len; i++) { %>
+
+		<li><%= users[i].name %> - <%= users[i].email %> - <%= users[i].password_hash %></li>
+
+	<% } %>
+</ul>
+
+<% include partials/footer.ejs %>
