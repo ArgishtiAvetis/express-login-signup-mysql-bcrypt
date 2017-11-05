@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser('S3CRE7'));
 app.use(session({
-    secret: 'erazimerkirhayrenihogserdshathuysdmets',
+    secret: 'erazimerkirhayrenihogserdshathuysdmetsg',
     name: 'none-of-your-business-buahaha',
     proxy: true,
     resave: true,
