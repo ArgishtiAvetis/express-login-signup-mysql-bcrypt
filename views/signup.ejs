@@ -1,5 +1,15 @@
 <% include partials/header.ejs %>
 
+<% if(typeof errors != 'undefined') { %>
+
+<ul>
+	<% for(let i = 0, len = errors.length; i < len; i++) { %>
+		<li style='color: red;'><%= errors[i] %></li>
+	<% } %>	
+</ul>
+
+<% } %>
+
 <form action="/signup" method="post">
 	<input type="text" name="name" placeholder="your name" />
 	<input type="email" name="email" placeholder="your email" />

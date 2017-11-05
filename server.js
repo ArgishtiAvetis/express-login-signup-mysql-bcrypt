@@ -63,7 +63,7 @@ app.get('/login', (req, res) => {
 
 app.get('/dashboard', (req, res) => {
 
-	if(req.session.user_email) {
+	if(req.session.user) {
 		res.render('dashboard');
 	} else {
 		res.redirect('/login');
@@ -73,30 +73,55 @@ app.get('/dashboard', (req, res) => {
 
 app.post('/signup', (req, res) => {
 
+	let errors = [];
+
 	let name = req.body.name,
 		email = req.body.email,
 		password = req.body.password;
 
-	bcrypt.hash(password, saltRounds=10, function(err, hash) {
-	  	
-	  	// Store hash in your password DB.
-		let sql = `INSERT INTO users (name, email, password_hash)`;
-			sql += `VALUES ('${name}', '${email}', '${hash}')`; 
+	if(name.length === 0) {
+		errors.push("Name should be at least 1 character long.");
+	}
 
-		con.query(sql, (err, result) => {
-			if (err) throw err;
-			console.log(result);
+	if(email.length === 0) {
+		errors.push("Invalid Email Address.");
+	}
 
-			req.session.user_email = email;
+	if(password.length < 6) {
+		errors.push("Password should be at least 6 characters long.");
+	}
 
-			res.redirect('/');
+
+	if(errors.length != 0) {
+
+		res.render('signup', {
+			errors: errors
 		});
 
-	});
+	} else {
+		bcrypt.hash(password, saltRounds=10, function(err, hash) {
+		  	
+		  	// Store hash in your password DB.
+			let sql = `INSERT INTO users (name, email, password_hash)`;
+				sql += `VALUES ('${name}', '${email}', '${hash}')`; 
+
+			con.query(sql, (err, result) => {
+				if (err) throw err;
+				console.log(result);
+
+				req.session.user = { name: name, email: email };
+
+				res.redirect('/');
+			});
+
+		});
+	}
 
 });
 
 app.post('/login', (req, res) => {
+
+	let errors = [];
 
 	let email = req.body.email,
 		password = req.body.password;
@@ -113,16 +138,30 @@ app.post('/login', (req, res) => {
 			    if(resp) {
 			    	console.log("Logged in");
 
-			    	req.session.user_email = result[0].email;
+			    	req.session.user = { name: result[0].name, email: result[0].email };
 
 			    	res.redirect('/');
 			    } else {
+
+			    	errors.push("Email/Password Incorrect.");
+
 			    	console.log("Incorrect Password");
+			    
+					res.render('login', {
+						errors: errors
+					});
+
 			    }
 			});
 
 		} else {
 			console.log("Account not found.");
+
+			errors.push("Email/Password Incorrect.");
+
+			res.render('login', {
+				errors: errors
+			});
 		}
 
 	});
@@ -131,7 +170,7 @@ app.post('/login', (req, res) => {
 
 app.get('/logout', (req, res) => {
 
-	req.session.user_email = "";
+	req.session.user = "";
 
 	res.redirect('/dashboard');
 
